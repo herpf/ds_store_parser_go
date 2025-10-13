@@ -1,0 +1,9 @@
+# Compiled binary
+ds_store_parser
+
+# macOS specific files
+.DS_Store
+
+# Go build cache
+/pkg/
+/bin/

@@ -1,0 +1,46 @@
+# .github/workflows/release.yml
+
+name: Go Release Build
+
+on:
+  push:
+    tags:
+      - 'v*' 
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create the release
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.1' 
+
+      - name: Tidy modules
+        run: go mod tidy
+
+      # The -o flag places the built binary in the root for the upload step
+      
+      - name: Build for Linux
+        run: GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ds-store-parser-linux-amd64
+
+      - name: Build for Windows
+        run: GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o ds-store-parser-windows-amd64.exe
+
+      - name: Build for macOS (ARM)
+        run: GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o ds-store-parser-darwin-arm64
+
+      # Create the GitHub Release and upload the built files
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ds-store-parser-linux-amd64
+            ds-store-parser-windows-amd64.exe
+            ds-store-parser-darwin-arm64
+          generate_release_notes: true # Automatically generates release notes
